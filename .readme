@@ -1,0 +1,11 @@
+dependency vs dev-dependency ---> dev-dependecy wle ko hm production k time nhi leke jaate ye sirf devlopment m hi kaam aata h
+
+git empty folder ka track nhi rkhta h
+
+prettier -- vs code m extension krlo pr jb bde lvl p project bnate jisme 2-3 log kaam krte h tb koi ek semicon use krta aur koi nhi krta toh jb use git m cocompile krte h toh bhoy saare conflicts aateh // ye  formating krta h ki 2 spaces rkhi jaa rhi ya 3 spaces
+
+connect to database -- 2 points
+1. database se jb bhi connect krte h toh problems aa sktih so use try catch
+2. db is in another continent so to communicate it takes time use async await
+
+index.js -- iss file m koi login bs function import kro aur cakll kro ya run kro
