@@ -21,7 +21,15 @@ alternative using iffe that is function after function ;()() semicolon is used t
 // other way is to create separate file for connection like db.js and export the function and import it in index.js and use it there
 
 
-connectDB();
+connectDB()       // jo humne db ki file likhi wha humne async method likha aur jb bhi asssync method comoplete hota h toh vo promise bhi return krta h iske liye hm .the aur cath use krta h
+.then(() => {
+    app.listen(process.env.PORT || 8000, () => {
+        console.log(`Server is running on port ${process.env.PORT}`);
+    });
+})
+.catch((err) => {
+    console.log("Failed to connect to DB !!!", err);
+})
 
 
 

@@ -9,3 +9,5 @@ connect to database -- 2 points
 2. db is in another continent so to communicate it takes time use async await
 
 index.js -- iss file m koi login bs function import kro aur cakll kro ya run kro
+
+tokens --> access token aur refresh rtoken hum SHA256 se genrate kr skte h access token db m store nhi hota h pr refreh token hota h
