@@ -30,7 +30,7 @@ const videoSchema = new Schema(
 
     },
     {
-        timesatmps : true
+        timestamps : true
     }
 )
 videoSchema.plugin(mongooseAggregatePaginate); // ye plugin use krne k liye hmne schema m plugin method use kiya
