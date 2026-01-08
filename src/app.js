@@ -22,8 +22,14 @@ app.use(express.static("public")); // ye hm static file serve krne k liye use kr
 
 app.use(cookieParser());  // ye hm cookie ko parse krne k liye use krte h taki jb bhi client se cookie aaye toh vo easily read ho jaye server m cookie p crud operation perform kr ske
 
+//routes import
+import userRoutes from "./routes/user.routes.js";
 
 
+// routes declaration
+app.use("/api/v1/users", userRoutes); // jb bhi /users p request aaygi toh vo userRoutes m jaygi jaha sare user se related routes honge
+
+// http://localhost:8000/api/v1/users/register  ---> ye pura url h jb hm register krne k liye request bhejte h
 
 export {app};
 

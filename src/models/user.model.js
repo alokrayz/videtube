@@ -49,19 +49,26 @@ const userSchema = new Schema({
         timestamps: true,
     }
 )
+// not workingYou are using BOTH of these together: async function (next) calling next()
+// userSchema.pre("save", async function (next) {  // ye pre save hook h jo mongoose ka feature h jb bhi user model ka koi document save hoga toh ye function call hoga is,me hmne arrow function use nhi kiya kyoki isme humein this ka refrence use krna tha
+//     if(!this.isModified("password")) return next();// ye check krne k liye h ki kya password modify hua h ya nhi jb bhi user apna password change karega toh ye condition true hogi
 
-userSchema.pre("save", async function (next) {  // ye pre save hook h jo mongoose ka feature h jb bhi user model ka koi document save hoga toh ye function call hoga is,me hmne arrow function use nhi kiya kyoki isme humein this ka refrence use krna tha
-    if(this.isModified("password")) return next();// ye check krne k liye h ki kya password modify hua h ya nhi jb bhi user apna password change karega toh ye condition true hogi
+//     this.password = await bcrypt.hash(this.password, 10); // ye line password ko hash krne k liye h jisse ki password database m plain text m na jaye
+//     next();
+// });
 
-    this.password = await bcrypt.hash(this.password, 10); // ye line password ko hash krne k liye h jisse ki password database m plain text m na jaye
-    next();
-})
+userSchema.pre("save", async function () {
+    if (!this.isModified("password")) return;
+
+    this.password = await bcrypt.hash(this.password, 10);
+});
+
 
 userSchema.methods.isPasswordCorrect = async function (password) {
     return await bcrypt.compare(password, this.password); // ye method password ko compare krne k liye h jo user login krta h aur jo database m stored h
 }
 
-userSchema.methods.generateAccessToken = function () {
+userSchema.methods.generateAccessToken = function () {  // accessToken genrally short lived hote h aur refresh token long lived hote h
    return jwt.sign(              // jwt ka sign method use krke hm token generate krte h
         {
             _id: this._id,
