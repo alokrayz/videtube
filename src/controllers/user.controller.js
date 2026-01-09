@@ -3,6 +3,7 @@ import {ApiError} from "../utils/ApiError.js";
 import { User } from "../models/user.model.js";
 import { uploadOnCloudinary} from "../utils/cloudinary.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
+import jwt from "jsonwebtoken";
 
 const generateAccessAndRefreshTokens = async (userId) => {
     try {
@@ -111,12 +112,13 @@ const loginUser = asyncHandler(async (req, res) =>{
     // send response
 
     const {email, username, password} = req.body;
+    console.log(email);
 
-    if(!username || !email){
+    if(!username && !email){
         throw new ApiError (400, "Username or email is required");
     }
 
-    const user = awaitUser.findOne({
+    const user = await User.findOne({
         $or: [{email}, {username}],
     })
 
@@ -136,6 +138,8 @@ const loginUser = asyncHandler(async (req, res) =>{
 
     const loggedInUser = await User.findById(user._id).
     select("-password -refreshToken")
+
+    // console.log("Logged in user:", loggedInUser);
 
     const options = {
         httpOnly: true, // waise hm normally token ko frontend se updtae kr skte  hhtp only use krke ye sirf backend se update ho skt H ab
@@ -189,8 +193,53 @@ const logoutUser = asyncHandler(async (req, res) => {
 
 })
 
+const refreshAccessToken = asyncHandler(async (req, res) => {             // access aur refresh token ka yeh kaam h ki use baar bqaar username aur password naa dena pde ab jb access token expire ho jaaye toh voh 401 error dega toh uss time pe hm refresh token ka use krke naya access token generate kr skte h bina username aur password diye
+    const incomingRefreshToken = req.cookies?.refreshToken || req.body.refreshToken
+
+    if(!incomingRefreshToken){
+        throw new ApiError(401, "Refresh token is required");
+    }
+
+    try {
+        const decodedToken =jwt.verify(
+            incomingRefreshToken,
+            process.env.REFRESH_TOKEN_SECRET,
+        )
+    
+        const user = User.findById(decodedToken?._id)
+         if(!user){
+            throw new ApiError(401, "Invalid Refresh token");
+        }
+        if(user?.refreshToken !== incomingRefreshToken){
+            throw new ApiError(401, "refresh token is expired or used");
+        }
+        
+        const options = {
+            httpOnly: true,
+            secure: true
+        }
+    
+        const {accessToken, newRefreshToken} = await generateAccessAndRefreshTokens(user._id)
+    
+        return res
+        .status(200)
+        .cookie("accessToken", accessToken, options)
+        .cookie("refreshToken", newRefreshToken, options)
+        .json(
+            new ApiResponse(
+                200,
+                {accessToken, refreshToken: newRefreshToken},
+                "Access token refreshed successfully"
+            )
+        )
+    } catch (error) {
+        throw new ApiError(401, "Invalid refresh token"); 
+    }
+})
+
 export {
     registerUser,
     loginUser,
-    logoutUser
+    logoutUser,
+    refreshAccessToken
 };
